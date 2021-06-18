@@ -1,10 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # This script helps to install klipper on orangepi devices
 
 NEWUSER='klipper'
 
 create_klipper_user(){
-    adduser ${NEWUSER}
+	if [[ $(cat /etc/passwd | grep 'klipper' | wc -l) -eq 0 ]]; then
+	    adduser ${NEWUSER}
+	fi
     usermod -a -G tty ${NEWUSER}
     usermod -a -G dialout ${NEWUSER}
     adduser ${NEWUSER} sudo
@@ -25,7 +27,9 @@ SUBSYSTEM=="gpio*", PROGRAM="/bin/sh -c '\
 EOF
 
     # execute udev rules?!
-    groupadd gpio
+    if [[ `cat /etc/group | grep 'gpio' | wc -l` -eq 0 ]]; then
+    	groupadd gpio
+    fi
     usermod -a -G gpio ${NEWUSER}
     udevadm control --reload-rules
     udevadm trigger
