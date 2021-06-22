@@ -52,6 +52,16 @@ download_kiauh(){
     cd  ~
     git clone ${KIAUH_REPO}
     cd kiauh
+	read -p "Do you want return log path to /tmp? (Y/n):" yn
+	while true; do
+        case "$yn" in
+        Y|y|Yes|yes|"")
+                echo "Return log path to /tmp"
+				find . -type f -print0 | xargs -0 sed -i 's|${HOME}/klipper_logs|/tmp|g'
+                break;;
+        N|n|No|no) break;;
+        esac
+	done
     ./kiauh.sh
 
 }
