@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
+set -eu
 
 WIRINGOP_REPO=https://github.com/orangepi-xunlong/wiringOP.git
 USTREAMER_REPO=https://github.com/pikvm/ustreamer
 KIAUH_REPO=https://github.com/th33xitus/kiauh.git
-TELEGRAM_BOT_REPO=http://omv.home:3000/lefskiy/moonraker-telegram-bot.git
-#TELEGRAM_BOT_REPO=https://github.com/nlef/moonraker-telegram-bot
+TELEGRAM_BOT_REPO=https://github.com/nlef/moonraker-telegram-bot
 
 install_wiringop(){
     cd  ~
@@ -18,12 +18,12 @@ install_wiringop(){
     fi
 
     sudo ./build clean
-    sudo ./build install
+    sudo ./build
 }
 
 install_deps(){
     sudo apt update
-    sudo apt-get install --yes zlib1g-dev libjpeg-dev git build-essential libevent-dev libjpeg-dev libbsd-dev gpiod
+    sudo apt-get install --yes zlib1g-dev libjpeg-dev git build-essential libevent-dev libjpeg-dev libbsd-dev gpiod python3-numpy nmon ncdu
 }
 
 install_ustreamer(){
@@ -57,8 +57,17 @@ WantedBy=multi-user.target
 EOF
 
     sudo systemctl daemon-reload
-    sudo systemctl enable ustreamer.service
-    sudo systemctl start ustreamer.service
+    read -p "Do you want to enable ustreamer service? (y/N):" yn
+	while true; do
+        case "$yn" in
+        Y|y|Yes|yes)
+                sudo systemctl enable ustreamer.service
+                sudo systemctl start ustreamer.service
+                break;;
+        N|n|No|no|"") break;;
+		*) break;;
+        esac
+	done
 }
 
 install_vlc_streamer(){
@@ -89,8 +98,18 @@ RestartSec=30
 EOF
 
     sudo systemctl daemon-reload
-    sudo systemctl enable vlc-streamer.service
-    sudo systemctl start vlc-streamer.service
+    read -p "Do you want to enable vlc_stremer service? (y/N):" yn
+	while true; do
+        case "$yn" in
+        Y|y|Yes|yes)
+                sudo systemctl enable vlc-streamer.service
+                sudo systemctl start vlc-streamer.service
+                break;;
+        N|n|No|no|"") break;;
+		*) break;;
+        esac
+	done
+
 }
 
 download_kiauh(){
@@ -117,8 +136,7 @@ download_kiauh(){
         esac
 	done
     
-    ./kiauh.sh
-
+    ./kiauh.sh || :
 }
 
 install_telegram_bot(){
@@ -138,7 +156,7 @@ install_telegram_bot(){
 
 install_wiringop
 install_deps
-#install_ustreamer
+install_ustreamer
 install_vlc_streamer
 download_kiauh
 install_telegram_bot
